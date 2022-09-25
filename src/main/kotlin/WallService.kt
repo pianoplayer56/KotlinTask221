@@ -8,12 +8,11 @@ object WallService {
     }
 
     fun add(newPost: Post): Post {
-        if (!newPost.isAdded) {
+        if (!posts.any { it.id == newPost.id }) {
             newPost.id = lastId
             lastId++
-            newPost.isAdded = true
+            posts += newPost
         }
-        posts += newPost
         return posts.last()
     }
 
@@ -21,7 +20,6 @@ object WallService {
         for (currentPost in posts) {
             if (post.id == currentPost.id) {
                 post.text += "!"
-                post.likes = post.likes.copy(count = post.likes.count + 2)
                 return true
             }
         }
