@@ -2,22 +2,20 @@ data class Post(
 
     val authorId: Int,
     val date: String,
-    var text: String,
-    var likes: Like = Like(10, userLiked = true, canRepost = true),
+    var text: String?,
+    val likes: Like = Like(10, userLiked = true, canRepost = true),
     val comments: Comment = Comment(1, 1, "10.09.2022 18:36", "Hello!"),
     val canPin: Boolean = true,
-    val canEdit: Boolean = true,
+    val canEdit: Boolean?,
+    val attachments: Array<Attachment> = emptyArray()
+) {
 
-    /* добавил переменную для отображения статуса добавлена или нет на стену
-    для избежания ситуаций с повтором размещения поста на стене */
-    var isAdded: Boolean = false,
-    var id: Int = 0
-
-)
+    var id: Int? = null
+}
 
 
 data class Like(
-    var count: Int,
+    val count: Int,
     val userLiked: Boolean,
     val canRepost: Boolean
 )
@@ -37,19 +35,76 @@ fun main() {
         1,
         "10.09.2022 18:35",
         "Hi everybody",
-
+        canEdit = true,
+        attachments = arrayOf(
+            AudioAttachment(
+                Audio(
+                    1,
+                    2,
+                    3,
+                    4,
+                    "Dua Lipa"
+                )
+            ),
+            VideoAttachment(
+                Video(
+                    1,
+                    1,
+                    1,
+                    1
+                )
+            )
         )
+    )
+
+
     val post2 = Post(
         1,
         "10.09.2022 18:35",
         "Hi everybody",
-
+        canEdit = true,
+        attachments = arrayOf(
+            FileAttachment(
+                File(
+                    1,
+                    102,
+                    "pdf",
+                    10,
+                    5
+                )
+            ),
+            PhotoAttachment(
+                Photo(
+                    256,
+                    256,
+                    6,
+                    "png",
+                    4,
+                    3
+                )
+            )
         )
+    )
 
     val post3 = Post(
         1,
         "10.09.2022 18:35",
         "Hi everybody",
+        canEdit = true,
+        attachments = arrayOf(
+            CoordinatesAttachment(
+                Coordinates(
+                    "City", Coordinates.Place(
+                        1,
+                        "Moscow",
+                        55,
+                        45,
+                        "Russia",
+                        "Moscow"
+                    )
+                )
+            )
+        )
     )
 
 
@@ -65,5 +120,9 @@ fun main() {
         println(post.id)
     }
 
+
+    for (attachment in post1.attachments) {
+        println(attachment)
+    }
 
 }
