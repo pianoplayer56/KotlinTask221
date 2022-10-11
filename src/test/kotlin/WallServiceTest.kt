@@ -2,78 +2,81 @@ import org.junit.Test
 
 import org.junit.Assert.*
 import org.junit.Before
-import kotlin.random.Random
+
 
 class WallServiceTest {
     @Before
     fun clearBeforeTest() {
-        WallService.clear()
+        WallServiceCRUD.clear()
     }
 
     @Test
     fun addPostTest() {
-        val post1 = WallService.add(Post(authorId = 1, date = "now", text = "text1", canEdit = true))
-        val post2 = WallService.add(Post(authorId = 2, date = "now", text = "text2", canEdit = true))
+        val post1 = WallServiceCRUD.add(Post(authorId = 1, date = "now", canEdit = true), 0)
+        val post2 = WallServiceCRUD.add(Post(authorId = 2, date = "now", canEdit = true), 0)
         val result = 2
         assertEquals(result, post2.id)
     }
 
     @Test
     fun true_UpdatePostTest() {
-        val post3 = WallService.add(Post(authorId = 1, date = "now", text = "text1", canEdit = true))
-        WallService.update(post3)
-        assertTrue(WallService.update(post3))
+        val post3 = WallServiceCRUD.add(Post(authorId = 1, date = "now", canEdit = true), 0)
+        WallServiceCRUD.edit(post3)
+        assertTrue(WallServiceCRUD.edit(post3))
     }
 
 
     @Test
     fun false_UpdatePostTest() {
-        val post4 = Post(authorId = 1, date = "now", text = "text1", canEdit = true)
+        val post4 = Post(authorId = 1, date = "now", canEdit = true)
         post4.id = 11
-        WallService.update(post4)
-        assertFalse(WallService.update(post4))
+        WallServiceCRUD.edit(post4)
+        assertFalse(WallServiceCRUD.edit(post4))
     }
 
-    @Test(expected = PostNotFoundException::class)
-    fun shouldThrow() {
-        val post = Post(authorId = 1, date = "now", text = "text1", canEdit = true)
-        WallService.createComment(post.id, Comment(1, "today", "hello"))
-    }
-
-    @Test
-    fun createPostSuccessfully() {
-        val post3 = WallService.add(Post(authorId = 1, date = "now", text = "text1", canEdit = true))
-        val comment = Comment(1, "today", "hello")
-        val result = WallService.createComment(post3.id, comment)
-        assertEquals(comment, result)
+    @Test(expected = ObjectNotFoundException::class)
+    fun shouldThrowObject() {
+        val comment1 = Comment(20, 1, "yesterday")
+        WallServiceCRUD.add(comment1, comment1.relateObjectId)
     }
 
     @Test
-    fun addReport_Correctly() {
-        val post3 = WallService.add(Post(authorId = 1, date = "now", text = "text1", canEdit = true))
-        val comment = Comment(1, "today", "hello")
-        val result = WallService.createComment(post3.id, comment)
-        val id = comment.id ?: -1
-        val report = WallService.addReport(id, Random.nextInt(0, 8))
-
-        assertEquals(report, WallService.testReport)
+    fun createCommentSuccessfully() {
+        val post3 = WallServiceCRUD.add(Post(authorId = 1, date = "now", canEdit = true), 0)
+        val comment2 = Comment(post3.id, 1, "today")
+        val result = WallServiceCRUD.add(comment2, comment2.relateObjectId)
+        assertEquals(comment2, result)
     }
 
-    @Test(expected = CommentNotFoundException::class)
-    fun shouldThrow_CommentNotFoundException() {
-        val post3 = WallService.add(Post(authorId = 1, date = "now", text = "text1", canEdit = true))
-        val comment = Comment(1, "today", "hello")
-        val id = comment.id ?: -1
-        val report = WallService.addReport(id, Random.nextInt(0, 8))
+    @Test(expected = NoteNotFoundException::class)
+    fun shouldThrowNoteNotFound_InDelete() {
+        val note1 = Note("Hometask", 1, 1)
+        WallServiceCRUD.delete(1)
+    }
+
+    @Test(expected = NoteNotFoundException::class)
+    fun shouldThrowNoteNotFound_InRestore() {
+        val note1 = Note("Homework", 1, 1)
+        val note2 = Note("Hometask", 1, 1)
+        WallServiceCRUD.add(note2, 1)
+        WallServiceCRUD.delete(note2.id - 1)
+        WallServiceCRUD.restore(note2.id)
+    }
+
+    @Test
+    fun RestoreNoteSuccessfully() {
+        val note2 = Note("Hometask", 1, 1)
+        WallServiceCRUD.add(note2, 1)
+        WallServiceCRUD.delete(note2.id)
+        assertTrue(WallServiceCRUD.restore(note2.id))
 
     }
 
-    @Test(expected = ReasonNotFoundException::class)
-    fun shouldThrow_ReasonNotFoundExceptionNotFoundException() {
-        val post3 = WallService.add(Post(authorId = 1, date = "now", text = "text1", canEdit = true))
-        val comment = Comment(1, "today", "hello")
-        val result = WallService.createComment(post3.id, comment)
-        val id = comment.id ?: -1
-        val report = WallService.addReport(id, Random.nextInt(9, Int.MAX_VALUE))
+    @Test
+    fun DeleteNoteSuccessfully() {
+        val note2 = Note("Hometask", 1, 1)
+        WallServiceCRUD.add(note2, 1)
+        assertTrue(WallServiceCRUD.delete(note2.id))
+
     }
 }
